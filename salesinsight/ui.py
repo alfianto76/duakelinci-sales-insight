@@ -65,7 +65,7 @@ h1, h2, h3 { letter-spacing: -0.02em; color: var(--ink); }
 .topbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
   background: var(--card); border:1px solid var(--line); border-radius: 18px; padding: 14px 20px; margin-bottom: 1rem; }
 .brand { display:flex; align-items:center; gap:14px; }
-.brand img { height: 44px; width:auto; display:block; }
+.brand img { height: 52px; width:auto; display:block; }
 .wordmark { font-weight: 800; color: var(--brand); font-size: 1.25rem; letter-spacing:-.02em; }
 .brand-title { font-weight: 800; font-size: 1.15rem; color: var(--ink); line-height:1.15; }
 .brand-sub { font-size: .8rem; color: var(--ink-3); }
