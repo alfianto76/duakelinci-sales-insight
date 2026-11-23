@@ -24,10 +24,13 @@ from salesinsight.telegram import TelegramError, config_from_env, send_message
 ROOT = Path(__file__).parent
 load_dotenv(ROOT / ".env")
 
-COLOR_CURRENT, COLOR_PREVIOUS = ui.BRAND, "#B4AFA6"
 
 st.set_page_config(page_title="Sales Intelligence · Dua Kelinci", page_icon="🐇", layout="wide")
-ui.inject_css()
+if "dark" not in st.session_state:
+    st.session_state["dark"] = st.query_params.get("theme") == "dark"
+DARK = st.session_state["dark"]
+ui.inject_css(DARK)
+CT = ui.chart_theme(DARK)
 
 # ---------------------------------------------------------------- login
 
@@ -54,6 +57,14 @@ def load(source) -> tuple[pd.DataFrame, object]:
 
 with st.sidebar:
     ui.sidebar_user(user_name)
+
+    def _theme_changed() -> None:
+        if st.session_state["dark"]:
+            st.query_params["theme"] = "dark"
+        else:
+            st.query_params.pop("theme", None)
+
+    st.toggle(":material/dark_mode: Mode gelap", key="dark", on_change=_theme_changed)
     if APP_PASSWORD and st.button("Keluar", width="stretch", icon=":material/logout:"):
         st.session_state.clear()
         st.rerun()
@@ -135,7 +146,6 @@ if st.session_state.get("summary_sig") != sig:
     st.session_state["summary"] = template_summary(facts)
     st.session_state["writer"] = "template"
 
-st.write("")
 with st.container(key="ai_panel"):
     ui.ai_head(
         "Ditulis Claude dari angka yang dihitung aplikasi"
@@ -145,7 +155,7 @@ with st.container(key="ai_panel"):
     text = st.text_area(
         "Ringkasan untuk sales manager",
         value=st.session_state["summary"],
-        height=130,
+        height=190,
         label_visibility="collapsed",
         key=f"summary_box_{abs(hash(st.session_state['summary']))}",
     )
@@ -186,20 +196,20 @@ def comparison_chart(table: pd.DataFrame, dim: str) -> alt.Chart:
             rows.append({dim: r[dim], "Bulan": prev_name, "Nilai": r["previous"], **tip})
     data = pd.DataFrame(rows)
     domain = [cur_name] + ([prev_name] if prev_name else [])
-    rng = [COLOR_CURRENT] + ([COLOR_PREVIOUS] if prev_name else [])
+    rng = [CT["current"]] + ([CT["previous"]] if prev_name else [])
     return (
         alt.Chart(data)
         .mark_bar(cornerRadiusEnd=4, height={"band": 0.85})
         .encode(
             y=alt.Y(f"{dim}:N", sort=order, title=None,
-                    axis=alt.Axis(labelLimit=200, labelFontSize=12, labelColor="#55545C", ticks=False, domain=False)),
+                    axis=alt.Axis(labelLimit=200, labelFontSize=12, labelColor=CT["label"], ticks=False, domain=False)),
             yOffset=alt.YOffset("Bulan:N", sort=domain),
             x=alt.X("Nilai:Q", title="Rp juta",
-                    axis=alt.Axis(labelExpr="format(datum.value / 1e6, ',.0f')", grid=True, gridColor="#EFECE6",
-                                  domain=False, ticks=False, labelColor="#8C8A93", titleColor="#8C8A93",
+                    axis=alt.Axis(labelExpr="format(datum.value / 1e6, ',.0f')", grid=True, gridColor=CT["grid"],
+                                  domain=False, ticks=False, labelColor=CT["muted"], titleColor=CT["muted"],
                                   titleFontWeight="normal")),
             color=alt.Color("Bulan:N", scale=alt.Scale(domain=domain, range=rng),
-                            legend=alt.Legend(orient="top", title=None, labelColor="#55545C", symbolType="circle")),
+                            legend=alt.Legend(orient="top", title=None, labelColor=CT["label"], symbolType="circle")),
             tooltip=[
                 alt.Tooltip(f"{dim}:N", title=dim.capitalize()),
                 alt.Tooltip("Bulan ini:N", title=cur_name),
@@ -209,7 +219,7 @@ def comparison_chart(table: pd.DataFrame, dim: str) -> alt.Chart:
         )
         .properties(height=max(220, 44 * len(order)))
         .configure_view(stroke=None)
-        .configure(font="Plus Jakarta Sans", background="#FFFFFF")
+        .configure(font="Plus Jakarta Sans", background=CT["bg"])
     )
 
 
@@ -222,7 +232,7 @@ def table_view(table: pd.DataFrame, dim: str) -> pd.DataFrame:
     return out
 
 
-col_r, col_b = st.columns(2, gap="medium")
+col_r, col_b = st.columns(2, gap="large")
 for col, dim, title, ic in [(col_r, "region", "Penjualan per region", "map"),
                            (col_b, "brand", "Penjualan per brand", "inventory_2")]:
     with col:
@@ -231,7 +241,7 @@ for col, dim, title, ic in [(col_r, "region", "Penjualan per region", "map"),
             table = by_dimension(df, dim, period)
             st.altair_chart(comparison_chart(table, dim), width="stretch")
             with st.expander("Lihat tabel", icon=":material/table_chart:"):
-                st.dataframe(table_view(table, dim), hide_index=True, width="stretch")
+                ui.table(table_view(table, dim))
 
 # ---------------------------------------------------------------- weakest outlets
 
@@ -253,9 +263,7 @@ with st.expander(f"Kualitas data · {len(quality.notes())} hal dirapikan dari {n
     for line in quality.notes():
         st.markdown(f"- {line}")
     if quality.shared_outlet_names:
-        st.dataframe(
-            pd.DataFrame([{"Nama outlet": k, "outlet_id": ", ".join(v)} for k, v in quality.shared_outlet_names.items()]),
-            hide_index=True, width="stretch",
-        )
+        ui.table(pd.DataFrame([{"Nama outlet": k, "outlet_id": ", ".join(v)}
+                               for k, v in quality.shared_outlet_names.items()]))
 
 ui.footer()
