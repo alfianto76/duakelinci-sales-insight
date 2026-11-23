@@ -54,11 +54,11 @@ def load(source) -> tuple[pd.DataFrame, object]:
 
 with st.sidebar:
     ui.sidebar_user(user_name)
-    if APP_PASSWORD and st.button("Keluar", width="stretch"):
+    if APP_PASSWORD and st.button("Keluar", width="stretch", icon=":material/logout:"):
         st.session_state.clear()
         st.rerun()
 
-    st.markdown("#### Filter")
+    ui.side_heading("Filter", "tune")
     try:
         df_all, quality = load(ROOT / "data" / "sales.csv")
     except ValueError as exc:
@@ -68,7 +68,8 @@ with st.sidebar:
     brands = st.multiselect("Brand", sorted(df_all["brand"].unique()), placeholder="Semua brand")
     types = st.multiselect("Tipe outlet", sorted(df_all["outlet_type"].unique()), placeholder="Semua tipe")
 
-    with st.expander("Ganti data CSV"):
+    ui.side_heading("Data", "database")
+    with st.expander("Ganti data CSV", icon=":material/upload_file:"):
         upload = st.file_uploader("Format kolom sama dengan sales.csv", type="csv")
     if upload is not None:
         try:
@@ -117,12 +118,12 @@ def delta(cur: float, prev: float) -> tuple[str | None, str]:
 avg_cur = cur_total / max(cur_df["invoice_no"].nunique(), 1)
 avg_prev = prev_total / max(prev_df["invoice_no"].nunique(), 1) if prev_total else 0
 ui.kpi_cards([
-    (f"Penjualan bersih {cur_name}", rupiah_short(cur_total), *delta(cur_total, prev_total)),
-    (f"Outlet aktif {cur_name}", str(cur_df["outlet_id"].nunique()),
+    ("payments", f"Penjualan bersih {cur_name}", rupiah_short(cur_total), *delta(cur_total, prev_total)),
+    ("storefront", f"Outlet aktif {cur_name}", str(cur_df["outlet_id"].nunique()),
      *delta(cur_df["outlet_id"].nunique(), prev_df["outlet_id"].nunique())),
-    (f"Invoice {cur_name}", num(cur_df["invoice_no"].nunique()),
+    ("receipt_long", f"Invoice {cur_name}", num(cur_df["invoice_no"].nunique()),
      *delta(cur_df["invoice_no"].nunique(), prev_df["invoice_no"].nunique())),
-    ("Rata-rata per invoice", rupiah_short(avg_cur), *delta(avg_cur, avg_prev)),
+    ("shopping_cart", "Rata-rata per invoice", rupiah_short(avg_cur), *delta(avg_cur, avg_prev)),
 ])
 
 # ---------------------------------------------------------------- AI brief
@@ -151,7 +152,8 @@ with st.container(key="ai_panel"):
     token, chat_id = config_from_env()
     b1, b2, b3 = st.columns([1.3, 1.2, 3])
     with b1:
-        if st.button("✦ Tulis dengan Claude", type="primary", width="stretch", disabled=not claude_on,
+        if st.button("Tulis dengan Claude", type="primary", width="stretch", disabled=not claude_on,
+                     icon=":material/auto_awesome:",
                      help=None if claude_on else "Isi ANTHROPIC_API_KEY untuk mengaktifkan Claude."):
             with st.spinner("Claude sedang menulis…"):
                 new, writer = write_summary(facts, use_claude=True)
@@ -160,7 +162,7 @@ with st.container(key="ai_panel"):
                 st.toast("Claude tidak tersedia, memakai draf template.")
             st.rerun()
     with b2:
-        if st.button("Kirim ke Telegram", width="stretch", disabled=not (text.strip() and token and chat_id)):
+        if st.button("Kirim ke Telegram", width="stretch", icon=":material/send:", disabled=not (text.strip() and token and chat_id)):
             try:
                 send_message(text)
                 st.toast("Terkirim ke Telegram ✓")
@@ -221,13 +223,14 @@ def table_view(table: pd.DataFrame, dim: str) -> pd.DataFrame:
 
 
 col_r, col_b = st.columns(2, gap="medium")
-for col, dim, title in [(col_r, "region", "Penjualan per region"), (col_b, "brand", "Penjualan per brand")]:
+for col, dim, title, ic in [(col_r, "region", "Penjualan per region", "map"),
+                           (col_b, "brand", "Penjualan per brand", "inventory_2")]:
     with col:
-        ui.section(title, cur_name + (f" dibanding {prev_name}" if prev_name else ""))
+        ui.section(title, cur_name + (f" dibanding {prev_name}" if prev_name else ""), ic)
         with st.container(key=f"card_{dim}"):
             table = by_dimension(df, dim, period)
             st.altair_chart(comparison_chart(table, dim), width="stretch")
-            with st.expander("Lihat tabel"):
+            with st.expander("Lihat tabel", icon=":material/table_chart:"):
                 st.dataframe(table_view(table, dim), hide_index=True, width="stretch")
 
 # ---------------------------------------------------------------- weakest outlets
@@ -236,6 +239,7 @@ ui.section(
     "5 outlet terlemah",
     "Dibandingkan dengan outlet setipe (Grosir, Minimarket, Toko Kelontong, Warung), karena grosir "
     "menjual ±10× warung. Outlet yang berhenti order langsung naik ke urutan teratas.",
+    "warning",
 )
 with st.container(key="card_weak"):
     ui.weak_table(weakest_outlets(df, period, n=5), cur_name, prev_name)
@@ -244,7 +248,8 @@ with st.container(key="card_weak"):
 # ---------------------------------------------------------------- data quality
 
 st.write("")
-with st.expander(f"Kualitas data · {len(quality.notes())} hal dirapikan dari {num(quality.rows_raw)} baris"):
+with st.expander(f"Kualitas data · {len(quality.notes())} hal dirapikan dari {num(quality.rows_raw)} baris",
+                 icon=":material/fact_check:"):
     for line in quality.notes():
         st.markdown(f"- {line}")
     if quality.shared_outlet_names:

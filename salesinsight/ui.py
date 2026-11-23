@@ -20,6 +20,7 @@ BRAND = "#D7262E"
 CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0&display=block');
 
 :root {
   --brand: #D7262E;
@@ -42,10 +43,22 @@ html, body, [class*="css"], .stApp, .stMarkdown, button, input, textarea, select
 .stApp { background: #F6F5F2; }
 .block-container { padding-top: 1.4rem; padding-bottom: 3rem; max-width: 1280px; }
 header[data-testid="stHeader"] { background: transparent; }
+.ms, [data-testid="stIconMaterial"] { font-family: 'Material Symbols Rounded' !important; font-weight: normal; font-style: normal;
+  line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; direction: ltr;
+  -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }
+.ms { font-size: 20px; font-variation-settings: 'FILL' 0, 'wght' 500; vertical-align: middle; }
+.ms.fill { font-variation-settings: 'FILL' 1, 'wght' 500; }
+.ico { width:34px; height:34px; border-radius: 11px; display:grid; place-items:center; flex:none; }
+.ico.brand { background: var(--brand-soft); color: var(--brand); }
+.ico.up { background: var(--up-soft); color: var(--up); }
+.ico.down { background: var(--down-soft); color: var(--down); }
+.ico.ai { background: linear-gradient(135deg, var(--ai-a), var(--ai-b)); color:#fff; }
+.ico.sm { width:28px; height:28px; border-radius: 9px; } .ico.sm .ms { font-size: 17px; }
 #MainMenu, footer { visibility: hidden; }
 
 h1, h2, h3 { letter-spacing: -0.02em; color: var(--ink); }
-.sec-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 1.6rem 0 .2rem; display:flex; align-items:center; gap:.5rem; }
+.sec-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 1.6rem 0 .2rem; display:flex; align-items:center; gap:.6rem; }
+.sec-title .ms { color: var(--brand); font-size: 22px; }
 .sec-sub { font-size: .82rem; color: var(--ink-3); margin-bottom: .7rem; }
 
 /* header */
@@ -57,6 +70,7 @@ h1, h2, h3 { letter-spacing: -0.02em; color: var(--ink); }
 .brand-title { font-weight: 800; font-size: 1.15rem; color: var(--ink); line-height:1.15; }
 .brand-sub { font-size: .8rem; color: var(--ink-3); }
 .divider-v { width:1px; height:36px; background: var(--line); }
+.pill .ms { font-size: 16px; }
 .pill { display:inline-flex; align-items:center; gap:6px; font-size:.75rem; font-weight:600; padding:6px 12px; border-radius:999px; }
 .pill-ai { color:#fff; background: linear-gradient(90deg, var(--ai-a), var(--ai-b)); box-shadow: 0 4px 14px rgba(124,58,237,.25); }
 .pill-soft { color: var(--ink-2); background:#F1EFEA; }
@@ -65,12 +79,14 @@ h1, h2, h3 { letter-spacing: -0.02em; color: var(--ink); }
 .kpis { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
 @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 .kpi { background: var(--card); border:1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
+.kpi-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
 .kpi-label { font-size:.78rem; color: var(--ink-3); font-weight:600; text-transform: uppercase; letter-spacing:.04em; }
 .kpi-value { font-size: 1.7rem; font-weight: 800; color: var(--ink); margin-top: 4px; letter-spacing:-.02em; }
-.kpi-delta { display:inline-block; margin-top:6px; font-size:.78rem; font-weight:700; padding:3px 8px; border-radius:8px; }
+.kpi-delta { display:inline-flex; align-items:center; gap:2px; margin-top:6px; font-size:.78rem; font-weight:700; padding:3px 8px; border-radius:8px; }
 .kpi-delta.up { color: var(--up); background: var(--up-soft); }
 .kpi-delta.down { color: var(--down); background: var(--down-soft); }
 .kpi-delta.flat { color: var(--ink-2); background:#F1EFEA; }
+.kpi-delta .ms { font-size: 16px; }
 
 /* AI panel (st.container key="ai_panel") */
 .st-key-ai_panel {
@@ -88,7 +104,7 @@ h1, h2, h3 { letter-spacing: -0.02em; color: var(--ink); }
 /* insight cards */
 .insights { display:grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 10px; margin-top: 10px; }
 .ins { border-radius: 14px; padding: 12px 14px; border:1px solid var(--line); background:#FCFBF9; }
-.ins-t { font-weight:700; font-size:.9rem; display:flex; gap:8px; align-items:center; }
+.ins-t { font-weight:700; font-size:.88rem; display:flex; gap:10px; align-items:flex-start; line-height:1.3; }
 .ins-b { font-size:.8rem; color: var(--ink-2); margin-top: 4px; line-height:1.45; }
 .ins .dot { width:8px; height:8px; border-radius:50%; flex:none; }
 .ins.up .dot { background: var(--up); } .ins.down .dot { background: var(--down); } .ins.alert .dot { background: var(--brand); }
@@ -115,6 +131,11 @@ h1, h2, h3 { letter-spacing: -0.02em; color: var(--ink); }
 /* sidebar */
 section[data-testid="stSidebar"] { background: #FFFFFF; border-right:1px solid var(--line); }
 .side-user { display:flex; align-items:center; gap:10px; padding:10px 12px; background:#F6F5F2; border-radius:12px; margin-bottom: .5rem; }
+.side-head { display:flex; align-items:center; gap:8px; font-weight:700; font-size:.82rem; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing:.06em; margin: 1.1rem 0 .4rem; }
+.side-head .ms { font-size: 18px; color: var(--ink-3); }
+.online { width:9px; height:9px; border-radius:50%; background:#22C55E; border:2px solid #fff; margin-left:auto; box-shadow:0 0 0 1px #E9E6E0; }
+.o-meta .ms { font-size: 14px; color: var(--ink-3); vertical-align: -2px; }
 .avatar { width:32px; height:32px; border-radius:50%; background: linear-gradient(135deg, var(--ai-a), var(--ai-b)); color:#fff; display:grid; place-items:center; font-weight:800; }
 
 /* buttons */
@@ -125,6 +146,7 @@ section[data-testid="stSidebar"] { background: #FFFFFF; border-right:1px solid v
   border-radius: 22px; padding: 28px 28px 18px; box-shadow: 0 20px 50px rgba(27,27,31,.08); }
 .login-logo { display:flex; justify-content:center; margin-bottom: 10px; }
 .login-logo img { height: 84px; }
+.login-badge { display:flex; justify-content:center; margin: 6px 0 2px; }
 .login-title { text-align:center; font-weight:800; font-size:1.35rem; margin-top: 4px; }
 .login-sub { text-align:center; color: var(--ink-3); font-size:.85rem; margin-bottom: 14px; }
 .foot { text-align:center; color: var(--ink-3); font-size:.75rem; margin-top: 2rem; }
@@ -144,6 +166,11 @@ def _logo_src() -> str | None:
     return None
 
 
+def icon(name: str, cls: str = "") -> str:
+    """Material Symbols icon (Rounded)."""
+    return f'<span class="ms {cls}">{name}</span>'
+
+
 def logo_html() -> str:
     src = _logo_src()
     if src:
@@ -152,8 +179,8 @@ def logo_html() -> str:
 
 
 def topbar(subtitle: str, claude_on: bool) -> None:
-    ai = '<span class="pill pill-ai">✦ AI-assisted</span>'
-    mode = "Claude aktif" if claude_on else "Mode template"
+    ai = f'<span class="pill pill-ai">{icon("auto_awesome", "fill")}AI-assisted</span>'
+    mode = (f'{icon("check_circle")}Claude aktif' if claude_on else f'{icon("description")}Mode template')
     st.markdown(
         f"""<div class="topbar">
           <div class="brand">{logo_html()}<div class="divider-v"></div>
@@ -165,19 +192,21 @@ def topbar(subtitle: str, claude_on: bool) -> None:
     )
 
 
-def kpi_cards(items: list[tuple[str, str, str | None, str]]) -> None:
-    """items: (label, value, delta_text, tone) with tone in up/down/flat."""
+def kpi_cards(items: list[tuple[str, str, str, str | None, str]]) -> None:
+    """items: (icon, label, value, delta_text, tone) with tone in up/down/flat."""
+    arrows = {"up": "arrow_upward", "down": "arrow_downward", "flat": "remove"}
     cells = []
-    for label, value, delta, tone in items:
-        d = f'<div class="kpi-delta {tone}">{html.escape(delta)}</div>' if delta else ""
-        cells.append(f'<div class="kpi"><div class="kpi-label">{html.escape(label)}</div>'
+    for ic, label, value, delta, tone in items:
+        d = (f'<div class="kpi-delta {tone}">{icon(arrows[tone])}{html.escape(delta)}</div>' if delta else "")
+        cells.append(f'<div class="kpi"><div class="kpi-top"><div class="kpi-label">{html.escape(label)}</div>'
+                     f'<div class="ico brand sm">{icon(ic)}</div></div>'
                      f'<div class="kpi-value">{html.escape(value)}</div>{d}</div>')
     st.markdown(f'<div class="kpis">{"".join(cells)}</div>', unsafe_allow_html=True)
 
 
-def section(title: str, sub: str = "") -> None:
+def section(title: str, sub: str = "", ic: str = "") -> None:
     st.markdown(
-        f'<div class="sec-title">{html.escape(title)}</div>'
+        f'<div class="sec-title">{icon(ic) if ic else ""}{html.escape(title)}</div>'
         + (f'<div class="sec-sub">{html.escape(sub)}</div>' if sub else ""),
         unsafe_allow_html=True,
     )
@@ -185,7 +214,7 @@ def section(title: str, sub: str = "") -> None:
 
 def ai_head(meta: str) -> None:
     st.markdown(
-        f"""<div class="ai-head"><div class="ai-title"><span class="ai-spark">✦</span>AI Sales Brief</div>
+        f"""<div class="ai-head"><div class="ai-title"><span class="ico ai sm">{icon("auto_awesome", "fill")}</span>AI Sales Brief</div>
         <div class="ai-meta">{html.escape(meta)}</div></div>""",
         unsafe_allow_html=True,
     )
@@ -194,8 +223,10 @@ def ai_head(meta: str) -> None:
 def insight_cards(items: list[dict]) -> None:
     if not items:
         return
+    icons = {"up": ("trending_up", "up"), "down": ("trending_down", "down"), "alert": ("priority_high", "brand")}
     cells = "".join(
-        f'<div class="ins {i["tone"]}"><div class="ins-t"><span class="dot"></span>{html.escape(i["title"])}</div>'
+        f'<div class="ins {i["tone"]}"><div class="ins-t"><span class="ico sm {icons[i["tone"]][1]}">'
+        f'{icon(icons[i["tone"]][0])}</span>{html.escape(i["title"])}</div>'
         f'<div class="ins-b">{html.escape(i["body"])}</div></div>'
         for i in items
     )
@@ -216,7 +247,7 @@ def weak_table(weak: pd.DataFrame, cur_name: str, prev_name: str | None) -> None
         rows.append(f"""<tr>
           <td><div class="rank">{i}</div></td>
           <td><div class="o-name">{html.escape(r.outlet_label)}</div>
-              <div class="o-meta">{html.escape(r.outlet_type)} · {html.escape(r.region)} · Salesman {html.escape(r.salesman)}</div></td>
+              <div class="o-meta">{icon("storefront")} {html.escape(r.outlet_type)} · {icon("location_on")} {html.escape(r.region)} · {icon("badge")} {html.escape(r.salesman)}</div></td>
           <td><div class="o-name">{rupiah_short(r.current)}</div><div class="o-meta">{rupiah(r.current)}</div></td>
           <td><div class="bar"><span style="width:{share*100:.0f}%"></span></div>
               <div class="bar-l">{pct(r.peer_index, signed=False)} dari median {html.escape(r.outlet_type)} ({rupiah_short(r.peer_median)})</div></td>
@@ -233,9 +264,14 @@ def sidebar_user(name: str) -> None:
     initial = (name[:1] or "A").upper()
     st.markdown(
         f'<div class="side-user"><div class="avatar">{html.escape(initial)}</div>'
-        f'<div><div style="font-weight:700">{html.escape(name)}</div><div class="o-meta">Sales manager</div></div></div>',
+        f'<div><div style="font-weight:700">{html.escape(name)}</div><div class="o-meta">Sales manager</div></div>'
+        '<span class="online" title="Online"></span></div>',
         unsafe_allow_html=True,
     )
+
+
+def side_heading(title: str, ic: str) -> None:
+    st.markdown(f'<div class="side-head">{icon(ic)}{html.escape(title)}</div>', unsafe_allow_html=True)
 
 
 def footer() -> None:
@@ -251,20 +287,21 @@ def login_screen(check) -> None:
     with st.container(key="login_card"):
         st.markdown(
             f'<div class="login-logo">{logo_html()}</div>'
+            f'<div class="login-badge"><span class="pill pill-ai">{icon("auto_awesome", "fill")}AI-assisted</span></div>'
             '<div class="login-title">Sales Intelligence</div>'
             '<div class="login-sub">Masuk untuk melihat dashboard penjualan</div>',
             unsafe_allow_html=True,
         )
         with st.form("login", border=False):
-            user = st.text_input("Username", placeholder="admin")
-            pw = st.text_input("Password", type="password")
-            ok = st.form_submit_button("Masuk", type="primary", width="stretch")
+            user = st.text_input("Username", placeholder="admin", icon=":material/person:")
+            pw = st.text_input("Password", type="password", icon=":material/lock:")
+            ok = st.form_submit_button("Masuk", type="primary", width="stretch", icon=":material/login:")
         if ok:
             if check(user, pw):
                 st.session_state["auth_user"] = user.strip()
                 st.rerun()
             else:
                 st.error("Username atau password salah.")
-        st.markdown('<div class="foot" style="margin-top:.6rem">Prototype tes AI Builder · data dummy</div>',
+        st.markdown(f'<div class="foot" style="margin-top:.6rem">{icon("shield_lock")} Prototype tes AI Builder · data dummy</div>',
                     unsafe_allow_html=True)
     st.stop()
