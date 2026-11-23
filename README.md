@@ -25,6 +25,8 @@ Dashboard langsung jalan tanpa konfigurasi apa pun. Untuk Claude dan Telegram, s
 | `TELEGRAM_BOT_TOKEN` | Token bot dari @BotFather | Tombol kirim memberi pesan cara mengisinya |
 | `TELEGRAM_CHAT_ID` | Chat/grup tujuan | sama |
 
+Cari `TELEGRAM_CHAT_ID`: isi token dulu, kirim pesan apa saja ke bot, lalu jalankan `python get_chat_id.py`.
+
 Kirim ringkasan tanpa membuka dashboard (cocok untuk cron harian):
 
 ```bash
@@ -38,6 +40,15 @@ Tes:
 ```bash
 pytest
 ```
+
+### Deploy (Docker / Coolify)
+
+```bash
+docker build -t sales-insight .
+docker run -p 8501:8501 --env-file .env sales-insight
+```
+
+Di Coolify: Build Pack **Dockerfile**, port **8501**, isi variabel dari `.env.example` di tab Environment Variables. Kalau dashboard bisa dibuka publik, **isi `APP_PASSWORD`**. Pengunjung tanpa password tetap bisa melihat grafik, tabel, dan ringkasan template, tapi Claude dan tombol kirim Telegram terkunci.
 
 ## Data yang dirapikan
 
@@ -88,6 +99,8 @@ Contoh paragraf template untuk data ini:
 ```
 app.py                    dashboard Streamlit
 send_summary.py           CLI: ringkasan → Telegram (untuk cron)
+get_chat_id.py            bantu cari TELEGRAM_CHAT_ID
+Dockerfile                image untuk Docker / Coolify
 salesinsight/data.py      baca + rapikan CSV, laporan kualitas data
 salesinsight/metrics.py   agregasi region/brand, peringkat outlet terlemah
 salesinsight/summary.py   fakta → paragraf (Claude atau template)

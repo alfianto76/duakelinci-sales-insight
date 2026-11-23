@@ -5,6 +5,8 @@ Run:  streamlit run app.py
 
 from __future__ import annotations
 
+import hmac
+import os
 from pathlib import Path
 
 import altair as alt
@@ -48,6 +50,16 @@ with st.sidebar:
     brands = st.multiselect("Brand", sorted(df_all["brand"].unique()))
     types = st.multiselect("Tipe outlet", sorted(df_all["outlet_type"].unique()))
     st.caption("Kosong = semua.")
+
+    # On a public deployment, sending to Telegram and calling Claude need a password.
+    app_password = os.getenv("APP_PASSWORD", "")
+    unlocked = not app_password
+    if app_password:
+        st.header("Akses")
+        entered = st.text_input("Password admin", type="password", help="Untuk Claude dan kirim ke Telegram.")
+        unlocked = bool(entered) and hmac.compare_digest(entered, app_password)
+        if entered and not unlocked:
+            st.error("Password salah.")
 
 df = df_all
 if regions:
@@ -186,7 +198,13 @@ facts = build_facts(df, quality, period)
 
 c1, c2 = st.columns([1, 3])
 with c1:
-    use_claude = st.toggle("Tulis dengan Claude", value=True, help="Tanpa kredensial Anthropic, otomatis pakai template.")
+    use_claude = st.toggle(
+        "Tulis dengan Claude",
+        value=unlocked,
+        disabled=not unlocked,
+        help="Tanpa kredensial Anthropic, otomatis pakai template."
+        + ("" if unlocked else " Masukkan password admin di sidebar untuk memakai Claude."),
+    )
     if st.button("Buat ringkasan", type="primary", width="stretch"):
         with st.spinner("Menulis ringkasan…"):
             text, writer = write_summary(facts, use_claude=use_claude)
@@ -207,10 +225,12 @@ with c2:
         )
 
 token, chat_id = config_from_env()
-send = st.button("Kirim ke Telegram", disabled=not text.strip())
-if not (token and chat_id):
+send = st.button("Kirim ke Telegram", disabled=not (text.strip() and unlocked))
+if not unlocked:
+    st.caption("Masukkan password admin di sidebar untuk mengirim ke Telegram.")
+elif not (token and chat_id):
     st.caption("Isi TELEGRAM_BOT_TOKEN dan TELEGRAM_CHAT_ID di file .env untuk mengaktifkan pengiriman.")
-if send:
+if send and unlocked:
     try:
         send_message(text)
         st.success("Terkirim ke Telegram.")
