@@ -39,7 +39,11 @@ APP_PASSWORD = os.getenv("APP_PASSWORD", "")
 
 
 def check_login(user: str, pw: str) -> bool:
-    return hmac.compare_digest(user.strip(), APP_USER) and hmac.compare_digest(pw, APP_PASSWORD)
+    # Phones capitalise the first letter and keyboards add trailing spaces:
+    # usernames are case-insensitive, and stray spaces around either field are ignored.
+    user_ok = hmac.compare_digest(user.strip().casefold().encode(), APP_USER.strip().casefold().encode())
+    pw_ok = hmac.compare_digest(pw.strip().encode(), APP_PASSWORD.strip().encode())
+    return user_ok and pw_ok
 
 
 if APP_PASSWORD and "auth_user" not in st.session_state:

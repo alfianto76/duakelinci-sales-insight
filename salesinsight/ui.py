@@ -172,6 +172,8 @@ section[data-testid="stSidebar"] * { color: var(--ink); }
 .stButton button[kind="secondary"]:hover { border-color: var(--brand) !important; color: var(--brand) !important; }
 .stButton button:disabled { opacity: .55; }
 [data-testid="stToggle"] label p { color: var(--ink) !important; }
+.stTextInput input::placeholder, .stTextArea textarea::placeholder { color: var(--ink-3) !important;
+  -webkit-text-fill-color: var(--ink-3) !important; opacity: 1; }
 .stTextArea textarea, .stTextInput input { background-color: var(--input) !important; color: var(--ink) !important;
   -webkit-text-fill-color: var(--ink) !important; caret-color: var(--ink); }
 .stTextArea [data-baseweb], .stTextInput [data-baseweb],
@@ -358,10 +360,12 @@ def login_screen(check) -> None:
             unsafe_allow_html=True,
         )
         with st.form("login", border=False):
-            user = st.text_input("Username", placeholder="admin", icon=":material/person:")
+            user = st.text_input("Username", placeholder="Ketik username", icon=":material/person:")
             pw = st.text_input("Password", type="password", icon=":material/lock:")
             ok = st.form_submit_button("Masuk", type="primary", width="stretch", icon=":material/login:")
-        if ok:
+        if ok and not user.strip():
+            st.error("Username belum diisi.")
+        elif ok:
             if check(user, pw):
                 st.session_state["auth_user"] = user.strip()
                 st.rerun()
