@@ -4,7 +4,7 @@ Aplikasi web kecil dari `sales.csv` (Sep–Okt 2026):
 
 1. **Penjualan per region dan per brand**: bulan ini dibanding bulan lalu, dalam bentuk grafik dan tabel.
 2. **5 outlet terlemah**, lengkap dengan alasan kenapa masuk daftar.
-3. **Ringkasan satu paragraf** untuk sales manager yang bisa dikirim ke **Telegram** (tombol di dashboard atau lewat CLI untuk cron).
+3. **AI Sales Brief**: sinyal otomatis (region/brand/outlet yang bergerak) dan **ringkasan satu paragraf** untuk sales manager yang bisa dikirim ke **Telegram** (tombol di dashboard atau lewat CLI untuk cron).
 
 ## Cara menjalankan
 
@@ -48,7 +48,7 @@ docker build -t sales-insight .
 docker run -p 8501:8501 --env-file .env sales-insight
 ```
 
-Di Coolify: Build Pack **Dockerfile**, port **8501**, isi variabel dari `.env.example` di tab Environment Variables. Kalau dashboard bisa dibuka publik, **isi `APP_PASSWORD`**. Pengunjung tanpa password tetap bisa melihat grafik, tabel, dan ringkasan template, tapi Claude dan tombol kirim Telegram terkunci.
+Di Coolify: Build Pack **Dockerfile**, port **8501**, isi variabel dari `.env.example` di tab Environment Variables. Kalau dashboard bisa dibuka publik, **isi `APP_PASSWORD`** (dan opsional `APP_USERNAME`, default `admin`): seluruh dashboard akan berada di balik halaman login.
 
 ## Data yang dirapikan
 
@@ -106,6 +106,8 @@ salesinsight/metrics.py   agregasi region/brand, peringkat outlet terlemah
 salesinsight/summary.py   fakta → paragraf (Claude atau template)
 salesinsight/telegram.py  kirim lewat Bot API (library standar saja)
 salesinsight/fmt.py       format Rupiah dan persen gaya Indonesia
+salesinsight/ui.py        tampilan: tema, kartu KPI, panel AI Sales Brief, login
+assets/logo.png           logo (opsional; tanpa file ini tampil teks)
 tests/                    15 tes (pembersihan data, peringkat, fallback, format)
 data/sales.csv            data tes
 ```

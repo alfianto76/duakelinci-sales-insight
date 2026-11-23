@@ -114,3 +114,69 @@ def _reason(r: pd.Series, period: Period) -> str:
         else:
             parts.append(f"outlet baru, belum ada order di {month_name(period.previous)}")
     return "; ".join(parts)
+
+
+def insights(df: pd.DataFrame, period: Period) -> list[dict]:
+    """Rule-based signals for the dashboard: what moved, why, and what to do.
+
+    Each item: {"tone": "up" | "down" | "alert", "title": str, "body": str}.
+    """
+    out: list[dict] = []
+    if period.previous is None:
+        return out
+
+    regions = by_dimension(df, "region", period).dropna(subset=["change"])
+    brands = by_dimension(df, "brand", period).dropna(subset=["change"])
+
+    def driver(scope_col: str, scope_val: str, largest: bool) -> str | None:
+        sub = df[df[scope_col] == scope_val]
+        gains, drops = movers(sub, "outlet_label", period, n=1)
+        row = (gains if largest else drops).iloc[0] if len(sub) else None
+        if row is None or (largest and row["delta"] <= 0) or (not largest and row["delta"] >= 0):
+            return None
+        return f"{row['outlet_label']} ({rupiah_short(row['delta'])})"
+
+    if len(regions):
+        up = regions.sort_values("change").iloc[-1]
+        if up["change"] > 0:
+            d = driver("region", up["region"], largest=True)
+            out.append({
+                "tone": "up",
+                "title": f"{up['region']} tumbuh {pct(up['change'])}",
+                "body": (f"Dari {rupiah_short(up['previous'])} ke {rupiah_short(up['current'])}."
+                         + (f" Penyumbang terbesar: {d}. Cek apakah ini promo yang bisa ditiru region lain." if d else "")),
+            })
+        down = regions.sort_values("change").iloc[0]
+        if down["change"] < 0:
+            _, br = movers(df[df["region"] == down["region"]], "branch", period, n=1)
+            out.append({
+                "tone": "down",
+                "title": f"{down['region']} turun {pct(abs(down['change']), signed=False)}",
+                "body": (f"Penurunan terbesar di cabang {br.iloc[0]['branch']} ({rupiah_short(br.iloc[0]['delta'])})."
+                         " Prioritaskan kunjungan supervisor ke cabang ini."),
+            })
+    if len(brands):
+        b = brands.sort_values("change").iloc[0]
+        if b["change"] < 0:
+            out.append({
+                "tone": "down",
+                "title": f"Brand {b['brand']} turun {pct(abs(b['change']), signed=False)}",
+                "body": f"Bulan ini {rupiah_short(b['current'])}. Cek ketersediaan stok dan program display di outlet.",
+            })
+
+    weak = weakest_outlets(df, period, n=5)
+    stopped = int((weak["current"] <= 0).sum())
+    very_low = weak[weak["peer_index"] < 0.15]
+    if stopped:
+        out.append({
+            "tone": "alert",
+            "title": f"{stopped} outlet berhenti order",
+            "body": "Order bulan lalu, kosong bulan ini. Risiko pindah ke kompetitor.",
+        })
+    elif len(very_low):
+        out.append({
+            "tone": "alert",
+            "title": f"{len(very_low)} outlet di bawah 15% median tipenya",
+            "body": "Volume sangat kecil dibanding outlet sejenis. Lihat daftar outlet terlemah di bawah.",
+        })
+    return out
